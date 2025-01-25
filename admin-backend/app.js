@@ -19,25 +19,27 @@ const app = express();
 //     })
 //   );
 
-const allowedOrigins = [
-  "http://localhost:5173", 
-  "https://admin-dashboard-gamma-seven-21.vercel.app", 
-  "https://admin-dashboard-shits-projects-6347ef7e.vercel.app",
-  "https://admin-dashboard-git-main-shits-projects-6347ef7e.vercel.app"
-];
+app.use(cors());
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true, // Allow credentials (cookies)
-  })
-);
+// const allowedOrigins = [
+//   "http://localhost:5173", 
+//   "https://admin-dashboard-gamma-seven-21.vercel.app", 
+//   "https://admin-dashboard-shits-projects-6347ef7e.vercel.app",
+//   "https://admin-dashboard-git-main-shits-projects-6347ef7e.vercel.app"
+// ];
+
+// app.use(
+//   cors({
+//     origin: (origin, callback) => {
+//       if (!origin || allowedOrigins.includes(origin)) {
+//         callback(null, true);
+//       } else {
+//         callback(new Error("Not allowed by CORS"));
+//       }
+//     },
+//     credentials: true, // Allow credentials (cookies)
+//   })
+// );
 
 
 app.use(bodyParser.json());
