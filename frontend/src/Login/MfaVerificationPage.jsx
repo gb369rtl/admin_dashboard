@@ -25,6 +25,7 @@ const MfaVerificationPage = () => {
 
       if (response.data.success) {
         // Set cookie on backend and proceed
+        localStorage.setItem("authToken", response.data.token);
         navigate('/');
       }
     } catch (err) {

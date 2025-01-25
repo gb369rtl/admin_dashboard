@@ -762,6 +762,7 @@ exports.verifyMFA = async (req, res) => {
 
     res.cookie('token', jwtToken, options).status(200).json({
       success: true,
+      token: jwtToken,
       user,
       message: 'MFA verified and logged in successfully',
     });

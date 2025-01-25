@@ -17,6 +17,7 @@ import useLogout from "../../hooks/useLogout";
 import { jwtDecode } from "jwt-decode";
 
 const AdminPanel = () => {
+  const logout = useLogout();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -42,8 +43,6 @@ const AdminPanel = () => {
   useEffect(() => {
     fetchUserRole();
   }, []);
-
-  const logout = useLogout();
 
   let navLinks = [];
 
