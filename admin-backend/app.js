@@ -23,8 +23,7 @@ const allowedOrigins = [
   "http://localhost:5173", 
   "https://admin-dashboard-gamma-seven-21.vercel.app", 
   "https://admin-dashboard-shits-projects-6347ef7e.vercel.app",
-  "https://admin-dashboard-git-main-shits-projects-6347ef7e.vercel.app/",
-  ""
+  "https://admin-dashboard-git-main-shits-projects-6347ef7e.vercel.app"
 ];
 
 app.use(
