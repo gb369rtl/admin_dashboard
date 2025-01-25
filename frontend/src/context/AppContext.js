@@ -1,5 +1,5 @@
 // src/context/AppContext.js
-import React, { createContext, useReducer } from "react";
+import { createContext, useReducer } from "react";
 import { initialData } from "../data";
 
 export const AppContext = createContext();

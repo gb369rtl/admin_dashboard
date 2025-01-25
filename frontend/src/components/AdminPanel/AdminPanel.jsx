@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import DashboardOverview from "../pages/Dashboard/DashboardOverview";
@@ -12,6 +12,9 @@ import SecuritySection from "../pages/Security/SecuritySection";
 import SettingsPage from "../pages/Settings/SettingsPage";
 import ContentModeration from "../pages/Moderation/ContentModeration";
 import TalentManagement from "../pages/Talents/TalentManagement";
+import WelcomeBack from "../Welcome";
+import useLogout from "../../hooks/useLogout";
+import { jwtDecode } from "jwt-decode";
 
 const AdminPanel = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -19,20 +22,70 @@ const AdminPanel = () => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("Dashboard");
+  const [userRole, setUserRole] = useState(null);
+  const [userEmail, setUserEmail] = useState("");
 
-  const navLinks = [
-    { to: "/", label: "Dashboard", icon: "🏠" },
-    { to: "/users", label: "Users", icon: "👤" },
-    { to: "/talents", label: "Talents", icon: "🎭" },
-    { to: "/matching", label: "Matching", icon: "💡" },
-    { to: "/events", label: "Events", icon: "📅" },
-    { to: "/moderation", label: "Moderation", icon: "🛡️" },
-    { to: "/analytics", label: "Analytics", icon: "📊" },
-    { to: "/messages", label: "Messages", icon: "✉️" },
-    { to: "/settings", label: "Settings", icon: "⚙️" },
-    { to: "/security", label: "Security", icon: "🔒" },
-    { to: "/billing", label: "Billing", icon: "💳" },
-  ];
+  const fetchUserRole = async () => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        // console.log(decoded);
+        setUserRole(decoded.role);
+        setUserEmail(decoded.email);
+      } catch (error) {
+        console.error("Error decoding token:", error.message);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchUserRole();
+  }, []);
+
+  const logout = useLogout();
+
+  let navLinks = [];
+
+  if(userRole === "super_admin"){
+    navLinks = [
+      { to: "/dashboard", label: "Dashboard", icon: "🏠" },
+      { to: "/users", label: "Users", icon: "👤" },
+      { to: "/talents", label: "Talents", icon: "🎭" },
+      { to: "/matching", label: "Matching", icon: "💡" },
+      { to: "/events", label: "Events", icon: "📅" },
+      { to: "/moderation", label: "Moderation", icon: "🛡️" },
+      { to: "/analytics", label: "Analytics", icon: "📊" },
+      { to: "/messages", label: "Messages", icon: "✉️" },
+      { to: "/settings", label: "Settings", icon: "⚙️" },
+      { to: "/security", label: "Security", icon: "🔒" },
+      { to: "/billing", label: "Billing", icon: "💳" },
+    ];
+  }
+
+  if(userRole === "moderator"){
+    navLinks = [
+      { to: "/dashboard", label: "Dashboard", icon: "🏠" },
+      { to: "/users", label: "Users", icon: "👤" },
+      { to: "/talents", label: "Talents", icon: "🎭" },
+      { to: "/matching", label: "Matching", icon: "💡" },
+      { to: "/events", label: "Events", icon: "📅" },
+      { to: "/moderation", label: "Moderation", icon: "🛡️" },
+      { to: "/messages", label: "Messages", icon: "✉️" },
+      { to: "/settings", label: "Settings", icon: "⚙️" },
+    ];
+  }
+
+  if(userRole === "support_staff"){
+    navLinks = [
+      { to: "/dashboard", label: "Dashboard", icon: "🏠" },
+      { to: "/users", label: "Users", icon: "👤" },
+      { to: "/matching", label: "Matching", icon: "💡" },
+      { to: "/events", label: "Events", icon: "📅" },
+      { to: "/messages", label: "Messages", icon: "✉️" },
+    ];
+  }
+
 
   return (
     <div className="flex h-screen bg-gray-100 text-gray-900 overflow-hidden">
@@ -41,7 +94,7 @@ const AdminPanel = () => {
         <div className="h-full flex flex-col">
           {/* Logo */}
           <div className={`p-4 border-b border-gray-300 ${isSidebarCollapsed ? "flex-col" : "flex"} justify-between items-center`}>
-            <span className="text-xl font-semibold">Admin Panel</span>
+            <span className="text-xl font-semibold">{userRole} Panel</span>
             <button onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} className="text-gray-600 hover:text-gray-900">
               {isSidebarCollapsed ? "➡️" : "⬅️"}
             </button>
@@ -73,15 +126,15 @@ const AdminPanel = () => {
               <div className="w-8 h-8 rounded-full bg-gray-400"></div>
               {!isSidebarCollapsed && (
                 <div className="flex-1">
-                  <p className="text-sm font-medium">Admin User</p>
-                  <p className="text-xs text-gray-600">admin@example.com</p>
+                  <p className="text-sm font-medium">{userRole} User</p>
+                  <p className="text-xs text-gray-600">{userEmail}</p>
                 </div>
               )}
             </div>
             {isUserMenuOpen && (
               <div className="absolute bottom-12 left-0 bg-white p-4 rounded-lg shadow-lg space-y-2 border border-gray-300">
                 <button className="w-full text-left px-4 py-2 text-sm hover:bg-gray-300">Profile</button>
-                <button className="w-full text-left px-4 py-2 text-sm hover:bg-gray-300">Logout</button>
+                <button className="w-full text-left px-4 py-2 text-sm hover:bg-gray-300" onClick={logout}>Logout</button>
               </div>
             )}
           </div>
@@ -205,7 +258,8 @@ const AdminPanel = () => {
         <div className="p-4">
           {/* Content will be rendered here based on the selected route */}
           <Routes>
-            <Route path="/" element={<DashboardOverview />} />
+            <Route path="/" element={<WelcomeBack role={userRole} />} />
+            <Route path="/dashboard" element={<DashboardOverview />} />
             <Route path="/users" element={<UserManagement />} />
             <Route path="/talents" element={<TalentManagement />} />
             <Route path="/matching" element={<MatchingSystem />} />

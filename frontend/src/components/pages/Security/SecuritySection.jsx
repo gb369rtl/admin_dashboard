@@ -1,6 +1,67 @@
+
+import { useState, useEffect, useCallback } from "react";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import RoleManagement from "../../RoleManagement";
+
 const SecuritySection = () => {
+  const [roles, setRoles] = useState([]);
+  const [userRole, setUserRole] = useState(null); // Current user role
+  const [manageRole, setManageRole] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [selectedRole, setSelectedRole] = useState(null);
+
+  const appUri = import.meta.env.VITE_API_URL;
+
+  // Fetch User Role
+  const fetchUserRole = useCallback(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUserRole(decoded.role);
+      } catch (error) {
+        console.error("Error decoding token:", error.message);
+      }
+    } else {
+      console.error("No auth token found in local storage.");
+    }
+    setLoading(false);
+  }, []);
+
+  // Fetch Roles
+  const fetchRoles = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${appUri}/roles`);
+      setRoles(response.data.data);
+    } catch (error) {
+      console.error("Error fetching roles:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Initial Data Fetch
+  useEffect(() => {
+    fetchUserRole();
+    fetchRoles();
+  }, [fetchUserRole, fetchRoles]);
+
+  // Toggle Role Management
+  const toggleManageRole = (role) => {
+    console.log(role)
+    setSelectedRole(role.role);
+    setManageRole((prev) => !prev);
+  };
+
   return (
     <section id="security" className="min-h-screen bg-white text-black">
+      {manageRole && selectedRole && (
+              <div className="absolute lg:left-64 top-10 bg-white p-4 rounded-lg shadow-lg border border-gray-300">
+                <RoleManagement role={selectedRole} setManageRole={setManageRole} />
+              </div>
+            )}
       <div className="container mx-auto px-4 py-8">
         <h2 className="text-2xl font-bold mb-8 text-gray-800">Security & Access Control</h2>
 
@@ -9,88 +70,84 @@ const SecuritySection = () => {
           <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
             <h3 className="text-xl font-semibold mb-6 text-gray-800">Role Management</h3>
             <div className="space-y-4">
-              {[
-                {
-                  role: "Super Admin",
-                  description: "Full system access and control",
-                },
-                {
-                  role: "Moderator",
-                  description: "Content moderation and user management",
-                },
-                {
-                  role: "Support Staff",
-                  description: "User support and basic content access",
-                },
-              ].map((item, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg shadow-sm"
-                >
-                  <div>
-                    <h4 className="font-medium text-gray-800">{item.role}</h4>
-                    <p className="text-sm text-gray-600">{item.description}</p>
+              {roles.length > 0 ? (
+                roles.map((role) => (
+                  <div
+                    key={role._id}
+                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg shadow-sm"
+                  >
+                    <div>
+                      <h4 className="font-medium text-gray-800">{role.role}</h4>
+                      <p className="text-sm text-gray-600">{role.description}</p>
+                    </div>
+                    <button
+                      onClick={() => toggleManageRole(role)}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
+                    >
+                      Manage Access
+                    </button>
                   </div>
-                  <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm">
-                    Manage Access
-                  </button>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-gray-600">No roles available to manage.</p>
+              )}
             </div>
+            
           </div>
 
-          {/* Two-Factor Authentication */}
-          <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-            <h3 className="text-xl font-semibold mb-6 text-gray-800">Two-Factor Authentication</h3>
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-medium text-gray-800">2FA Status</h4>
-                  <p className="text-sm text-gray-600">Currently enabled for all admins</p>
+            {/* Two-Factor Authentication */}
+            <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+              <h3 className="text-xl font-semibold mb-6 text-gray-800">Two-Factor Authentication</h3>
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium text-gray-800">2FA Status</h4>
+                    <p className="text-sm text-gray-600">Currently enabled for all admins</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" className="sr-only peer" defaultChecked />
+                    <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-500 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                  </label>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" defaultChecked />
-                  <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-500 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
-                </label>
-              </div>
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h4 className="font-medium text-blue-600">Authentication Methods</h4>
-                <div className="mt-4 space-y-3">
-                  {[
-                    { label: "Authenticator App", checked: true },
-                    { label: "SMS Verification", checked: true },
-                    { label: "Email Verification", checked: false },
-                  ].map((method, index) => (
-                    <label key={index} className="flex items-center text-gray-700">
-                      <input
-                        type="checkbox"
-                        className="form-checkbox text-blue-600"
-                        defaultChecked={method.checked}
-                      />
-                      <span className="ml-2 text-sm">{method.label}</span>
-                    </label>
-                  ))}
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h4 className="font-medium text-blue-600">Authentication Methods</h4>
+                  <div className="mt-4 space-y-3">
+                    {[
+                      { label: "Authenticator App", checked: true },
+                      { label: "SMS Verification", checked: true },
+                      { label: "Email Verification", checked: false },
+                    ].map((method, index) => (
+                      <label key={index} className="flex items-center text-gray-700">
+                        <input
+                          type="checkbox"
+                          className="form-checkbox text-blue-600"
+                          defaultChecked={method.checked}
+                        />
+                        <span className="ml-2 text-sm">{method.label}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+
 
           {/* Audit Logs */}
-          <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-            <h3 className="text-xl font-semibold mb-6 text-gray-800">Audit Logs</h3>
-            <div className="space-y-4">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="text-sm text-gray-600">
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left pb-3">Action</th>
-                      <th className="text-left pb-3">User</th>
-                      <th className="text-left pb-3">Timestamp</th>
-                      <th className="text-left pb-3">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-sm">
-                    {[
+           <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+             <h3 className="text-xl font-semibold mb-6 text-gray-800">Audit Logs</h3>
+             <div className="space-y-4">
+               <div className="overflow-x-auto">
+                 <table className="w-full">
+                   <thead className="text-sm text-gray-600">
+                     <tr className="border-b border-gray-200">
+                       <th className="text-left pb-3">Action</th>
+                       <th className="text-left pb-3">User</th>
+                       <th className="text-left pb-3">Timestamp</th>
+                       <th className="text-left pb-3">Status</th>
+                     </tr>
+                   </thead>
+                   <tbody className="text-sm">
+                     {[
                       {
                         action: "User Profile Update",
                         user: "admin@system.com",
@@ -209,7 +266,8 @@ const SecuritySection = () => {
             </div>
           ))}
         </div>
-      </div>
+        </div>
+      {/* </div> */}
     </section>
   );
 };

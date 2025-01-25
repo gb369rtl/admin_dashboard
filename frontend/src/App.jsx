@@ -1,47 +1,57 @@
-// src/App.jsx
 // import React from "react";
-// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./components/pages/auth/ProtectedRoute";
+
+import LoginForm from "./Login/LoginForm";
+import MfaVerificationPage from "./Login/MfaVerificationPage";
+import EnableMFA from "./Login/EnableMFA";
+import EnableAuthenticatorPage from './Login/mfa';
 import AdminPanel from "./components/AdminPanel/AdminPanel";
-
-
-// Import your components for each section
-// import Dashboard from "./components/pages/Dashboard/DashboardOverview";
-// import Users from "./components/pages/Users/UserManagement";
-// import Talents from "./components/pages/Talents/TalentManagement";
-// import Matching from "./components/pages/Matching/MatchingSystem";
-// import Events from "./components/pages/Events/EventManagement";
-// import Moderation from "./components/pages/Moderation/ContentModeration";
-// import Analytics from "./components/pages/Analytics/AnalyticsDashboard";
-// import Messages from "./components/pages/Messages/CommunicationCenter";
-// import Settings from "./components/pages/Settings/SettingsPage";
-// import Security from "./components/pages/Security/SecuritySection";
-// import Billing from "./components/pages/Billing/BillingManagement";
-
+import AddUser from "./components/pages/Users/AddUser";
+import VerifyOtp from "./components/pages/Users/VerifyOtp";
 
 const App = () => {
   return (
-    <AdminPanel />
-    //   <Router>
-    //   <div className="">
-    //     <AdminPanel />
-    //     <main className="">
-    //       <Routes>
-    //         <Route path="/" element={<Dashboard />} />
-    //         <Route path="/users" element={<Users />} />
-    //         <Route path="/talents" element={<Talents />} />
-    //         <Route path="/matching" element={<Matching />} />
-    //         <Route path="/events" element={<Events />} />
-    //         <Route path="/moderation" element={<Moderation />} />
-    //         <Route path="/analytics" element={<Analytics />} />
-    //         <Route path="/messages" element={<Messages />} />
-    //         <Route path="/settings" element={<Settings />} />
-    //         <Route path="/security" element={<Security />} />
-    //         <Route path="/billing" element={<Billing />} />
-    //       </Routes>
-    //     </main>
-    //   </div>
-    // </Router>
+    <Router>
+      <Routes>
+        {/* Authentication Flow */}
+        <Route path="/login" element={<LoginForm />} />
+        <Route path="/mfa" element={<MfaVerificationPage />} />
+        <Route path="/mfa-setup" element={<EnableAuthenticatorPage />} />
+        <Route path="/not-mfa" element={<EnableMFA />} />
+
+        {/* Protected Admin Panel */}
+        <Route
+          path="/*"
+          element={
+            <ProtectedRoute>
+              <AdminPanel />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/addNewUser"
+          element={
+            <ProtectedRoute>
+              <AddUser />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/verify-otp"
+          element={
+            <ProtectedRoute>
+              <VerifyOtp />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </Router>
   );
 };
 
 export default App;
+
+
+
+
