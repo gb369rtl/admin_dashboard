@@ -645,21 +645,21 @@ exports.loginAdmin = async (req, res) => {
     }
 
     const user = await Admin.findOne({ email }).populate('role');
-    console.log(user)
+    // console.log(user)
     if (!user) {
       return res.status(404).json({
         success: false,
         message: 'Admin does not exist',
       });
     }
-    console.log(user.role.mfa);
+    // console.log(user.role.mfa);
     if (user.accountStatus === 'inactive') {
       return res.status(403).json({
         success: false,
         message: 'Your account is inactive. Please contact the administrator.',
       });
     }
-    console.log("one")
+    // console.log("one")
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({
@@ -667,7 +667,7 @@ exports.loginAdmin = async (req, res) => {
         message: 'Incorrect password',
       });
     }
-    console.log("two")
+    // console.log("two")
     // Check if MFA is required based on role permissions
     // const requiresMFA = user.role.permissions.some(
     //   (permission) => permission.resource === 'mfa' && permission.actions.includes('required')
@@ -683,7 +683,7 @@ exports.loginAdmin = async (req, res) => {
       });
     }
 
-    console.log("three")
+    // console.log("three")
     // Generate JWT
     const payload = {
       email: user.email,
