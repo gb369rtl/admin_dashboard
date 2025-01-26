@@ -40,7 +40,7 @@ const roles = {
 
 const seedRoles = async () => {
   try {
-    await mongoose.connect("url/Admin-App", {
+    await mongoose.connect("mongodb://root:example@13.235.74.108:27017/AdminApp?authSource=admin", {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
