@@ -20,7 +20,6 @@ const App = () => {
         <Route path="/mfa-setup" element={<EnableAuthenticatorPage />} />
         <Route path="/not-mfa" element={<EnableMFA />} />
 
-        {/* Protected Admin Panel */}
         <Route
           path="/*"
           element={

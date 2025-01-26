@@ -8,6 +8,7 @@ const useLogout = () => {
 
   const logout = async () => {
     try {
+      console.log("In logout")
       const response = await axios.post(`${appUri}/logout`, {}, { withCredentials: true });
       if (response.data.success) {
         // Clear local storage or state

@@ -777,6 +777,7 @@ exports.verifyMFA = async (req, res) => {
 
 exports.logoutAdmin = async (req, res) => {
   try {
+    console.log("In logout")
     res.cookie('token', '', {
       expires: new Date(0), // Expire the cookie immediately
       httpOnly: true,

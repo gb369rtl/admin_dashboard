@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import DashboardOverview from "../pages/Dashboard/DashboardOverview";
 import EventManagement from "../pages/Events/EventManagement";
@@ -13,11 +13,11 @@ import SettingsPage from "../pages/Settings/SettingsPage";
 import ContentModeration from "../pages/Moderation/ContentModeration";
 import TalentManagement from "../pages/Talents/TalentManagement";
 import WelcomeBack from "../Welcome";
-import useLogout from "../../hooks/useLogout";
+// import useLogout from "../../hooks/useLogout";
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 
 const AdminPanel = () => {
-  const logout = useLogout();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -25,6 +25,24 @@ const AdminPanel = () => {
   const [activeSection, setActiveSection] = useState("Dashboard");
   const [userRole, setUserRole] = useState(null);
   const [userEmail, setUserEmail] = useState("");
+
+  const appUri = import.meta.env.VITE_API_URL;
+
+  const navigate = useNavigate();
+
+  const handleLogout = async() => {
+      console.log("In logout")
+      const response = await axios.post(`${appUri}/logout`, {}, { withCredentials: true });
+      if (response.data.success) {
+        // Clear local storage or state
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('tempSession');
+        localStorage.removeItem('userRole');
+
+        // Navigate to the login page
+        navigate('/login');
+      }
+  }
 
   const fetchUserRole = async () => {
     const token = localStorage.getItem("authToken");
@@ -133,7 +151,7 @@ const AdminPanel = () => {
             {isUserMenuOpen && (
               <div className="absolute bottom-12 left-0 bg-white p-4 rounded-lg shadow-lg space-y-2 border border-gray-300">
                 <button className="w-full text-left px-4 py-2 text-sm hover:bg-gray-300">Profile</button>
-                <button className="w-full text-left px-4 py-2 text-sm hover:bg-gray-300" onClick={logout}>Logout</button>
+                <button className="w-full text-left px-4 py-2 text-sm hover:bg-gray-300" onClick={()=>handleLogout()}>Logout</button>
               </div>
             )}
           </div>
